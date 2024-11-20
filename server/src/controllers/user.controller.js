@@ -2,7 +2,7 @@ import { asyncHandler } from "./../utils/asyncHandler.js";
 import { ApiError } from "./../utils/ApiError.js";
 import { User } from "./../models/user.model.js";
 import { cloudinary, uploadOnCloudinary } from "./../utils/cloudinary.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+  
 import jwt from "jsonwebtoken";
 
 const generateAccessandRerershToken = async (userId) => {
@@ -113,14 +113,14 @@ const registerUser = asyncHandler(async (req, res) => {
       .cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "None",
+        sameSite: "lax",
         maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
       })
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "None",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, 
       })
       .json({
         success: true,
@@ -181,13 +181,13 @@ const loginUser = asyncHandler(async (req, res) => {
       .cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "None",
+        sameSite: "lax",
         maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
       })
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "None",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
       })
       .json({
@@ -222,12 +222,12 @@ const logoutUser = asyncHandler(async (req, res) => {
       .clearCookie("accessToken", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "None",
+        sameSite: "lax",
       })
       .clearCookie("refreshToken", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "None",
+        sameSite: "lax",
       })
       .json({
         sucess: true,
@@ -280,8 +280,18 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .cookie(accessToken, options)
-      .cookie(refreshToken, options)
+      .cookie(accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
+      })
+      .cookie(refreshToken,  {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+      })
       .json({
         success: true,
         accessToken: accessToken,
@@ -310,7 +320,7 @@ const changeCurrentUserPassword = asyncHandler(async (req, res) => {
 
   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
 
-  if (isPasswordCorrect) {
+  if (!isPasswordCorrect) {
     return res.status(400).json({
       success: false,
       message: "INVALID PASSWORD",
@@ -436,6 +446,36 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   });
 });
 
+const getUserById = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Fetch the user by ID
+    const user = await User.findById(userId);
+
+    // Check if the user exists
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Return the user details
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (err) {
+    // Handle errors
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+
 export {
   registerUser,
   loginUser,
@@ -446,4 +486,5 @@ export {
   updateAccountDetails,
   updateUserCoverImage,
   updateUserAvatar,
+  getUserById
 };

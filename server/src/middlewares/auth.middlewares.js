@@ -1,24 +1,19 @@
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+
 import jwt from "jsonwebtoken";
 
-export const verifyJWT = asyncHandler(async (req, res, next) => {
+export const verifyJWT = async (req, res, next) => {
+
+
   try {
-
-    console.log(" This is Headers  : ", req.headers);
-    console.log("This is cookies", req.cookies);
-
-    
-    const token =
-    req.headers['accesstoken'] || req.cookies['accessToken'];
-     
-    console.log(token);
+    const token = req.headers["accesstoken"] || req.cookies["accessToken"];
 
     if (!token) {
-       return res.status(401).json({
-        success : false,
-        messasge : " anathorized request"});
+      return res.status(401).json({
+        success: false,
+        messasge: " anathorized request",
+      });
     }
 
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
@@ -28,7 +23,10 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
     );
 
     if (!user) {
-      throw new ApiError(401, "Invalid Access Token ");
+      return res.status(404).json({
+        success : false,
+        message :  "Invalid Access Token "
+      });
     }
 
     req.user = user;
@@ -37,6 +35,9 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
   } catch (error) {
     console.log(error);
 
-    throw new ApiError(401, error?.message || "Invalid Input");
+    return res.status(400).json({
+      success : false,
+      message :  error.message
+    });
   }
-});
+};

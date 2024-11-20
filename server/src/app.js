@@ -1,33 +1,32 @@
-import express from "express"
+import express from "express";
 
 // CORS IS PACKAGE USE FOR , FROM WHERE WE ACCEPT OUR REQ
-import cors from "cors"
+import cors from "cors";
 
-// USED TO SET (CURD OPRATION) ON USER COOKIES 
+// USED TO SET (CURD OPRATION) ON USER COOKIES
 import cookieParser from "cookie-parser";
 
 const app = express();
 
-// ORIGIN FROM WHERE WE ACCEPT OUR REQUEST 
-app.use(cors({origin : process.env.CORS_ORIGIN, 
-  credentials : true
-}))
+// ORIGIN FROM WHERE WE ACCEPT OUR REQUEST
+app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
 
+app.use(cookieParser());
 
-app.use(cookieParser())
+//HOW MANY KB OF DATA WE WILL BE ACCPETIG
+app.use(express.json({ limit: "16kb" }));
 
-//HOW MANY KB OF DATA WE WILL BE ACCPETIG 
-app.use(express.json({limit : "16kb"}))
-
-// HOW NAMY KB URL DATA ACCEPTING 
-app.use(express.urlencoded({extended : true , limit : "16kb"}))
+// HOW NAMY KB URL DATA ACCEPTING
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
 //routes
 
 import userRouter from "./routes/user.routes.js";
 
-app.use("/api/v1/users" , userRouter)
+app.use("/api/v1/users", userRouter);
 
+import videoRouter from "./routes/video.routes.js";
 
+app.use("/api/v1/video", videoRouter);
 
-export { app }
+export { app };

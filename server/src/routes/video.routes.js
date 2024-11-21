@@ -8,6 +8,7 @@ import {
   togglePublishStatus,
   getAllVideosUploadedById,
   getAllVideosUploadedByUser,
+  updateViewCount,
 } from "../controllers/video.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
@@ -18,6 +19,7 @@ const router = Router();
 router.route("/").get(getAllVideos); // Fetch all videos
 router.route("/:videoId").get(getVideoById); // Fetch a single video by ID
 router.route("/uploaded/:userId").get(getAllVideosUploadedByUser);
+router.route("/viwes/:videoId").patch(updateViewCount);
 
 // Secure routes
 router.route("/publish").post(

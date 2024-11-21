@@ -9,7 +9,7 @@ const backendUrl = 'http://localhost:8000/api/v1';
 axios.defaults.withCredentials = true;
 
 export default function Profile() {
-  const {user, setUser ,userAuth, setUserAuth} = useContext(UserContext);
+  const { user, setUser, userAuth, setUserAuth } = useContext(UserContext);
   const [isEditing, setIsEditing] = useState(false);
   const [passwordData, setPasswordData] = useState({
     oldPassword: '',
@@ -62,6 +62,10 @@ export default function Profile() {
       setUser(null);
       setUserAuth(false);
       navigate('/');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+      
     } catch (error) {
       toast.error(error.response?.data?.message || 'Logout failed');
     }
@@ -72,6 +76,7 @@ export default function Profile() {
       const response = await axios.post(`${backendUrl}/users/current-user`);
       if (response?.data?.success) {
         setUser(response.data.user);
+        setUserAuth(true)
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error fetching user info');
@@ -96,11 +101,8 @@ export default function Profile() {
   };
 
   useEffect(() => {
-    if (!user) {
-      getUserInfo();
-    } else {
-      getVideos();
-    }
+    getUserInfo();
+    getVideos();
   }, [user]);
 
   return userAuth ? (
@@ -214,22 +216,19 @@ export default function Profile() {
                   Save Changes
                 </button>
                 <button
-              onClick={handleEditToggle}
-              className="w-[45%] bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-300"
-            >
-              Close
-              </button>
+                  onClick={handleEditToggle}
+                  className="w-[45%] bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-300"
+                >
+                  Close
+                </button>
               </div>
             ) : (
-            
               <button
                 onClick={handleEditToggle}
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300"
               >
                 Edit Profile
               </button>
-             
-            
             )}
           </div>
 

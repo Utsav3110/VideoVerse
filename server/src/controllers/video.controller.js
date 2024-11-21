@@ -325,6 +325,46 @@ const getAllVideosUploadedByUser = async (req, res) => {
 };
 
 
+const updateViewCount = async (req, res)=> {
+  try {
+    const { videoId } = req.params;
+
+    if (!isValidObjectId(videoId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid video ID",
+      });
+    }
+  
+    
+      const video = await Video.findById(videoId);
+  
+      if (!video) {
+        return res.status(404).json({
+          success: false,
+          message: "Video not found",
+        });
+      }
+  
+      video.views = video.views + 1;
+      await video.save();
+  
+      return res.status(200).json({
+        success: true,
+        message: `Video viwes updated to ${video.views}`,
+        data: video,
+      });
+     
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch videos",
+    });
+  }
+
+}
+
+
 export {
   getAllVideos,
   publishAVideo,
@@ -334,4 +374,5 @@ export {
   togglePublishStatus,
   getAllVideosUploadedById,
   getAllVideosUploadedByUser,
-};
+  updateViewCount,
+}

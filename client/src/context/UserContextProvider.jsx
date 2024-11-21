@@ -2,7 +2,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-
 export const UserContext = createContext();
 
 axios.defaults.withCredentials = true;
@@ -21,9 +20,9 @@ const UserContextProvider = ({ children }) => {
   const checkAuthStatus = async () => {
     try {
       const response = await axios.post(`${backendUrl}/users/current-user`);
-      setUser(response.data.user);
       if (response.data.successs) {
         setUserAuth(true);
+        setUser(response.data.user);
       } else {
         setUserAuth(false);
       }
@@ -35,30 +34,15 @@ const UserContextProvider = ({ children }) => {
     }
   };
 
-  const login = async (userData) => {
-    setUser(userData);
-  };
-
-  const logout = () => {
-    setUser(null);
-  
-  };
-
   const value = {
     user,
     setUser,
     loading,
-    login,
-    logout,
     userAuth,
     setUserAuth,
   };
 
-  return (
-    <UserContext.Provider value={value}>
-      {!loading && children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
 export default UserContextProvider;

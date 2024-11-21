@@ -2,8 +2,10 @@ import { asyncHandler } from "./../utils/asyncHandler.js";
 import { ApiError } from "./../utils/ApiError.js";
 import { User } from "./../models/user.model.js";
 import { cloudinary, uploadOnCloudinary } from "./../utils/cloudinary.js";
+import { isValidObjectId } from "mongoose";
   
 import jwt from "jsonwebtoken";
+import { Video } from "../models/video.model.js";
 
 const generateAccessandRerershToken = async (userId) => {
   try {
@@ -476,6 +478,49 @@ const getUserById = async (req, res) => {
 };
 
 
+const updateWatchHistory = async (req , res) => {
+  try {
+    
+    const user = await User.findById(req.user?._id);
+
+    const { videoId } = req.params;
+
+    if (!isValidObjectId(videoId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid video ID",
+      });
+    }
+  
+      const video = await Video.findById(videoId);
+  
+      if (!video) {
+        return res.status(404).json({
+          success: false,
+          message: "Video not found",
+        });
+      }
+
+
+      user.watchHistory.push(videoId);
+      
+     await user.save()
+
+      return res.status(200).json({
+        success: true,
+        message: `User watch history updated`,
+        data: user,
+      });
+
+   } catch (error) {
+     return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+   }
+} 
+
+
 export {
   registerUser,
   loginUser,
@@ -486,5 +531,6 @@ export {
   updateAccountDetails,
   updateUserCoverImage,
   updateUserAvatar,
-  getUserById
+  getUserById,
+  updateWatchHistory
 };

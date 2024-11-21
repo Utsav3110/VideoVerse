@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { UserContext } from '../context/UserContextProvider';
@@ -8,7 +8,7 @@ import { Mail, Lock, LogIn } from 'lucide-react';
 const Login = () => {
   const navigate = useNavigate();
   const {userAuth,
-    setUserAuth, setUser , login} = useContext(UserContext);
+    setUserAuth, setUser } = useContext(UserContext);
   
   const [formData, setFormData] = useState({
     emailOrUsername: '',
@@ -17,10 +17,27 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  useEffect(()=>{
+    getUserInfo()
+    console.log(userAuth);
+  }, [])
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
     setError(''); // Clear error when user types
+  };
+
+  const getUserInfo = async () => {
+    try {
+      const response = await axios.post(`${backendUrl}/users/current-user`);
+      if (response?.data?.success) {
+        setUser(response.data.user);
+        setUserAuth(true)
+      }
+    } catch (error) {
+      
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -36,6 +53,8 @@ const Login = () => {
       return;
     }
 
+
+
     try {
       const response = await axios.post('http://localhost:8000/api/v1/users/login', {
         email: emailOrUsername,
@@ -45,8 +64,8 @@ const Login = () => {
 
       if (response.data.success) {
         toast.success(response.data.message);
+        setUser(response.data.loggedInUser)
         setUserAuth(true);
-        await login(response.data.loggedInUser);
         navigate('/profile');
       } else {
         toast.error(response.data.message);

@@ -33,4 +33,10 @@ import commentRouter from './routes/comment.routes.js'
 
 app.use("/api/v1/comments", commentRouter)
 
+
+import subscriptionRoutes from "./routes/subscription.routes.js";
+
+app.use("/api/v1/subscriptions", subscriptionRoutes);
+
+
 export { app };

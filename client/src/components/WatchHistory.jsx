@@ -2,12 +2,12 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-import { Play, Eye, Calendar } from "lucide-react"; // Replace with actual imports
+import { Play, Eye, Calendar } from "lucide-react";
 import { UserContext } from "../context/UserContextProvider";
 
-// Replace with actual backend URL config
 
-const backendUrl = 'http://localhost:8000/api/v1';
+const backendUrl = import.meta.env.VITE_API_URL;
+axios.defaults.withCredentials = true;
 
 const WatchHistory = () => {
   const { user } = useContext(UserContext);
@@ -35,8 +35,9 @@ const WatchHistory = () => {
       const videosWithOwners = await Promise.all(
         videoData.map(async (video) => {
           try {
+
             const userResponse = await axios.get(
-              `${backendUrl}/users/${video.owner}`
+              `${backendUrl}/users/${video.owner._id}`
             );
             return {
               ...video,
@@ -65,10 +66,16 @@ const WatchHistory = () => {
     fetchWatchHistoryVideos();
   }, [user?.watchHistory]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className=" text-white">Loading...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
+    <>
+    <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-8 flex items-center">
+            <Play className="mr-4 text-blue-500 size-10" />
+            Watch History
+          </h1>
+
     <div
       className={`grid gap-6 cursor-pointer ${
         videos.length > 3
@@ -76,9 +83,9 @@ const WatchHistory = () => {
           : "grid-cols-1"
       }`}
     >
-      {videos.map((video) => (
+      {videos.map((video, index) => (
         <div
-          key={video._id}
+          key={`video._id-${index}`}
           className="group relative bg-gray-800/50 rounded-2xl shadow-xl overflow-hidden backdrop-blur-sm border border-gray-700/50 hover:border-blue-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10"
           onClick={() => navigate(`/video-details/${video._id}`)}
         >
@@ -130,6 +137,7 @@ const WatchHistory = () => {
         </div>
       ))}
     </div>
+    </>
   );
 };
 

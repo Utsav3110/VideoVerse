@@ -5,6 +5,9 @@ import { UserContext } from '../context/UserContextProvider';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, LogIn } from 'lucide-react';
 
+const backendUrl = import.meta.env.VITE_API_URL;
+axios.defaults.withCredentials = true;
+
 const Login = () => {
   const navigate = useNavigate();
   const {userAuth,
@@ -56,7 +59,7 @@ const Login = () => {
 
 
     try {
-      const response = await axios.post('http://localhost:8000/api/v1/users/login', {
+      const response = await axios.post(`${backendUrl}/users/login`, {
         email: emailOrUsername,
         username: emailOrUsername,
         password,

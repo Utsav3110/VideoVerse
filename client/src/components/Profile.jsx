@@ -4,12 +4,13 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { UserContext } from '../context/UserContextProvider';
 
-const backendUrl = 'http://localhost:8000/api/v1';
-
+const backendUrl = import.meta.env.VITE_API_URL;
 axios.defaults.withCredentials = true;
+
 
 export default function Profile() {
   const { user, setUser, userAuth, setUserAuth } = useContext(UserContext);
+  const [subscriberCount, setSubscriberCount] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [passwordData, setPasswordData] = useState({
     oldPassword: '',
@@ -19,6 +20,23 @@ export default function Profile() {
   const [coverImage, setCoverImage] = useState(null);
   const [videos, setVideos] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getSubscriberCount();
+  }, []);
+
+  const getSubscriberCount = async () => {
+    try {
+      const response = await axios.get(
+        `${backendUrl}/subscriptions/channel/${user._id}/subscribers`
+      );
+      if (response?.data?.success) {
+        setSubscriberCount(response.data.data.length);
+      }
+    } catch (error) {
+      console.error('Error fetching subscriber count:', error);
+    }
+  };
 
   const handleEditToggle = () => setIsEditing(!isEditing);
 
@@ -65,7 +83,6 @@ export default function Profile() {
       setTimeout(() => {
         window.location.reload();
       }, 500);
-      
     } catch (error) {
       toast.error(error.response?.data?.message || 'Logout failed');
     }
@@ -76,7 +93,7 @@ export default function Profile() {
       const response = await axios.post(`${backendUrl}/users/current-user`);
       if (response?.data?.success) {
         setUser(response.data.user);
-        setUserAuth(true)
+        setUserAuth(true);
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error fetching user info');
@@ -108,8 +125,9 @@ export default function Profile() {
   return userAuth ? (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="relative mb-8">
-          <div className="w-full h-48 md:h-64 lg:h-80 bg-gray-700 rounded-lg overflow-hidden">
+        {/* Cover Image Section */}
+        <div className="relative mb-20 md:mb-24">
+          <div className="w-full h-32 sm:h-48 md:h-64 lg:h-80 bg-gray-700 rounded-lg overflow-hidden">
             {user?.coverImage && (
               <img
                 src={user.coverImage}
@@ -118,7 +136,8 @@ export default function Profile() {
               />
             )}
           </div>
-          <div className="absolute left-4 -bottom-16 w-32 h-32 rounded-full border-4 border-white overflow-hidden">
+          {/* Avatar Section */}
+          <div className="absolute left-1/2 -bottom-16 transform -translate-x-1/2 md:left-8 md:transform-none w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-white overflow-hidden bg-gray-700">
             {user?.avatar && (
               <img
                 src={user.avatar}
@@ -129,12 +148,30 @@ export default function Profile() {
           </div>
         </div>
 
-        <div className="ml-40 mb-8">
-          <h2 className="text-3xl font-bold">{user?.username}</h2>
-          <p className="text-gray-400">{user?.fullName}</p>
+        {/* User Info Section */}
+        <div className="px-4 md:px-8">
+          <div className="flex flex-col md:flex-row md:items-end md:space-x-8">
+            {/* Username and Full Name */}
+            <div className="text-center md:text-left mb-4 md:mb-0">
+              <h2 className="text-2xl md:text-3xl font-bold">{user?.username}</h2>
+              <p className="text-gray-400 text-sm md:text-base mt-1">
+                {user?.fullName}
+              </p>
+            </div>
+
+            {/* Subscriber Count */}
+            <div className="text-center md:text-left mb-6 md:mb-0">
+              <div className="flex items-center justify-center md:justify-start space-x-2">
+                <span className="text-lg font-semibold">{subscriberCount}</span>
+                <span className="text-gray-400 text-sm">subscribers</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Profile Information and Actions Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+          {/* Profile Information Section */}
           <div className="col-span-1 md:col-span-2 bg-gray-800 p-6 rounded-lg">
             <h3 className="text-xl font-semibold mb-4">Profile Information</h3>
             {isEditing ? (
@@ -209,18 +246,20 @@ export default function Profile() {
                     hover:file:bg-violet-100"
                   />
                 </div>
-                <button
-                  onClick={handleSaveChanges}
-                  className="w-[45%] bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300 mx-5 "
-                >
-                  Save Changes
-                </button>
-                <button
-                  onClick={handleEditToggle}
-                  className="w-[45%] bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-300"
-                >
-                  Close
-                </button>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button
+                    onClick={handleSaveChanges}
+                    className="w-full sm:w-1/2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={handleEditToggle}
+                    className="w-full sm:w-1/2 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             ) : (
               <button
@@ -232,17 +271,33 @@ export default function Profile() {
             )}
           </div>
 
+          {/* Account Actions Section */}
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-xl font-semibold mb-4">Account Actions</h3>
-            <button
-              onClick={handleLogout}
-              className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-300"
-            >
-              Logout
-            </button>
+            <div className="space-y-3">
+              <button
+                onClick={() => navigate('/watchHistory')}
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300"
+              >
+                Watch History
+              </button>
+              <button
+                onClick={() => navigate('/video-update')}
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300"
+              >
+                Edit Video
+              </button>
+              <button
+                onClick={handleLogout}
+                className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-300"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
 
+        {/* Uploaded Videos Section */}
         <div className="mt-8 bg-gray-800 p-6 rounded-lg">
           <h3 className="text-xl font-semibold mb-4">Uploaded Videos</h3>
           {videos.length > 0 ? (
@@ -269,6 +324,6 @@ export default function Profile() {
       </div>
     </div>
   ) : (
-    <div className="text-red-600 flex justify-center ">Please Login Again</div>
+    <div className="text-red-600 flex justify-center">Please Login Again</div>
   );
 }

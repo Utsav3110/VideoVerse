@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import { Search, Play, Eye, Calendar, Loader2 } from "lucide-react";
 
-const backendUrl = "http://localhost:8000/api/v1";
+const backendUrl = import.meta.env.VITE_API_URL;
+axios.defaults.withCredentials = true;
 
 const VideoGallery = ({ excludeVideoId = null }) => {
   const [videos, setVideos] = useState([]);

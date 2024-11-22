@@ -3,8 +3,14 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { UserContext } from '../context/UserContextProvider';
 import { Upload, User, Image as ImageIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+const backendUrl = import.meta.env.VITE_API_URL;
+axios.defaults.withCredentials = true;
 
 const Register = () => {
+
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -19,7 +25,7 @@ const Register = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  const { setUser, navigate ,userAuth,
+  const { setUser,userAuth,
     setUserAuth} = useContext(UserContext);
 
   const handleInputChange = (e) => {
@@ -71,7 +77,7 @@ const Register = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:8000/api/v1/users/register',
+        `${backendUrl}/users/register`,
         formDataToSubmit,
         { withCredentials: true }
       );

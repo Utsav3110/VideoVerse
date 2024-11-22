@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, ThumbsUp, Reply } from 'lucide-react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
-const backendUrl = 'http://localhost:8000/api/v1';
+const backendUrl = import.meta.env.VITE_API_URL;
+axios.defaults.withCredentials = true;
 
 export default function Comment({
   comment,
@@ -37,6 +39,7 @@ export default function Comment({
         `${backendUrl}/comments/c/${comment._id}`
       );
       if (response.data.success) {
+        toast.success(response.data.message)
         onDelete(comment._id);
       }
     } catch (error) {

@@ -145,55 +145,57 @@ const getVideoById = async (req, res) => {
   }
 };
 
-// Function to update a video
-const updateVideo = async (req, res) => {
-  const { videoId } = req.params;
-  const { title, description } = req.body;
+  // Function to update a video
+  const updateVideo = async (req, res) => {
+    const { videoId } = req.params;
+    const { title, description } = req.body;
 
-  if (!isValidObjectId(videoId)) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid video ID",
-    });
-  }
 
-  try {
-    const updatedFields = {};
-    if (title) updatedFields.title = title;
-    if (description) updatedFields.description = description;
-
-    console.log(req.file);
-
-    if (req.file) {
-      const thumbnailImage = await uploadOnCloudinary(req.file.path, "image");
-      updatedFields.thumbnail = thumbnailImage.url;
-      console.log(thumbnailImage.url);
-    }
-
-    const updatedVideo = await Video.findByIdAndUpdate(videoId, updatedFields, {
-      new: true,
-    });
-
-    if (!updatedVideo) {
-      return res.status(404).json({
+    if (!isValidObjectId(videoId)) {
+      return res.status(400).json({
         success: false,
-        message: "Video not found",
+        message: "Invalid video ID",
       });
     }
 
-    return res.status(200).json({
-      success: true,
-      message: "Video updated successfully",
-      data: updatedVideo,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Error updating video",
-      error: error.message,
-    });
-  }
-};
+
+    try {
+      const updatedFields = {};
+      if (title) updatedFields.title = title;
+      if (description) updatedFields.description = description;
+
+      console.log(req.file);
+
+      if (req.file) {
+        const thumbnailImage = await uploadOnCloudinary(req.file.path, "image");
+        updatedFields.thumbnail = thumbnailImage.url;
+        console.log(thumbnailImage.url);
+      }
+
+      const updatedVideo = await Video.findByIdAndUpdate(videoId, updatedFields, {
+        new: true,
+      });
+
+      if (!updatedVideo) {
+        return res.status(404).json({
+          success: false,
+          message: "Video not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Video updated successfully",
+        data: updatedVideo,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Error updating video",
+        error: error.message,
+      });
+    }
+  };
 
 // Function to delete a video
 const deleteVideo = async (req, res) => {

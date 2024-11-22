@@ -14,8 +14,12 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContextProvider';
+import { toast } from 'react-toastify';
 
-const backendUrl = 'http://localhost:8000/api/v1';
+const backendUrl = import.meta.env.VITE_API_URL;
+axios.defaults.withCredentials = true;
+
+axios.defaults.withCredentials = true;
 
 export default function VideoDetails() {
   const { videoId } = useParams();
@@ -24,13 +28,76 @@ export default function VideoDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { user , userAuth } = useContext(UserContext);
+  const { user, userAuth } = useContext(UserContext);
 
+  // Subscription states
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriberCount, setSubscriberCount] = useState(0);
+  const [isLoadingSubscription, setIsLoadingSubscription] = useState(false);
+
+  // Comment states
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [commentPage, setCommentPage] = useState(1);
   const [totalComments, setTotalComments] = useState(0);
   const [loadingComments, setLoadingComments] = useState(false);
+
+  // Configure axios
+  axios.defaults.withCredentials = true;
+
+  const getSubscriptionStatus = async (ownerId) => {
+    try {
+      if (!userAuth || !ownerId) return;
+
+      const response = await axios.get(
+        `${backendUrl}/subscriptions/user/${user._id}/subscriptions`
+      );
+
+      const subscriptions = response.data.data;
+      setIsSubscribed(subscriptions.some(channel => channel._id === ownerId));
+    } catch (error) {
+      console.error('Error checking subscription status:', error);
+    }
+  };
+
+  const getSubscriberCount = async (ownerId) => {
+    try {
+      if (!ownerId) return;
+      
+      const response = await axios.get(
+        `${backendUrl}/subscriptions/channel/${ownerId}/subscribers`
+      );
+      if (response?.data?.success) {
+        setSubscriberCount(response.data.data.length);
+      }
+    } catch (error) {
+      console.error('Error fetching subscriber count:', error);
+    }
+  };
+
+  const handleSubscribeToggle = async () => {
+    try {
+      setIsLoadingSubscription(true);
+      if (!userAuth) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.post(
+        `${backendUrl}/subscriptions/toggle/${owner._id}`
+      );
+
+      if (response.data.success) {
+        setIsSubscribed(!isSubscribed);
+        setSubscriberCount(prev => isSubscribed ? prev - 1 : prev + 1);
+      }
+    } catch (error) {
+      console.error('Error toggling subscription:', error);
+      toast.error('Failed to update subscription');
+    } finally {
+      setIsLoadingSubscription(false);
+    }
+  };
 
   const fetchVideo = async () => {
     try {
@@ -42,6 +109,11 @@ export default function VideoDetails() {
           `${backendUrl}/users/${response.data.data.owner._id}`
         );
         setOwner(ownerResponse.data.user);
+        // Get subscription info after setting owner
+        if (userAuth) {
+          await getSubscriptionStatus(ownerResponse.data.user._id);
+        }
+        await getSubscriberCount(ownerResponse.data.user._id);
       } else {
         setError(response.data.message);
       }
@@ -52,24 +124,32 @@ export default function VideoDetails() {
     }
   };
 
+  const copyUrlToClipboard = () => {
+    const currentUrl = window.location.href;
+    navigator.clipboard.writeText(currentUrl)
+      .then(() => {
+        toast.success('URL copied to clipboard!');
+      })
+      .catch((err) => {
+        toast.error('Failed to copy: ', err);
+      });
+  };
 
-  const updateWatchHistory = async () =>{
+  const updateWatchHistory = async () => {
+    if (!userAuth) return;
 
-    if(!userAuth) return;
-
-    const response = await axios.patch(`${backendUrl}/users/updateWatchHistory/${videoId}`)
-
-    if(!response.data?.success){
+    const response = await axios.patch(`${backendUrl}/users/updateWatchHistory/${videoId}`);
+    if (!response.data?.success) {
       console.log(response.data?.message);
     }
-  }
+  };
 
-  const updateViwes = async () =>{
+  const updateViews = async () => {
     const response = await axios.patch(`${backendUrl}/video/viwes/${videoId}`);
-    if(!response.data?.success){
+    if (!response.data?.success) {
       console.log(response.data?.message);
     }
-  }
+  };
 
   const fetchComments = async (page = 1) => {
     try {
@@ -129,8 +209,8 @@ export default function VideoDetails() {
   };
 
   useEffect(() => {
-    updateViwes()
-    updateWatchHistory()
+    updateViews();
+    updateWatchHistory();
     fetchVideo();
     fetchComments(1);
   }, [videoId]);
@@ -164,49 +244,67 @@ export default function VideoDetails() {
             <video
               controls
               className="w-full aspect-video rounded-t-xl"
-              src={video.videoFile}
+              src={video?.videoFile}
             ></video>
 
             <div className="p-6">
               <h1 className="text-3xl font-bold text-white mb-4">
-                {video.title}
+                {video?.title}
               </h1>
 
               <div className="flex items-center space-x-4 mb-4 text-gray-400">
                 <div className="flex items-center">
                   <Eye className="mr-2" />
-                  <span>{video.views} views</span>
+                  <span>{video?.views} views</span>
                 </div>
                 <div className="flex items-center">
                   <Clock className="mr-2" />
-                  <span>{new Date(video.createdAt).toLocaleDateString()}</span>
+                  <span>{new Date(video?.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
 
-              <p className="text-gray-300 mb-6">{video.description}</p>
+              <p className="text-gray-300 mb-6">{video?.description}</p>
 
               {owner && (
-                <div
-                  onClick={() => navigate(`/chennal/${owner._id}`)}
-                  className="cursor-pointer flex items-center justify-between bg-gray-700 rounded-lg p-4"
-                >
+                <div className="flex items-center justify-between bg-gray-700 rounded-lg p-4">
                   <div className="flex items-center space-x-4">
                     <img
                       src={owner.avatar}
                       alt={owner.username}
-                      className="w-16 h-16 rounded-full border-4 border-blue-500"
+                      className="w-16 h-16 rounded-full border-4 border-blue-500 cursor-pointer"
+                      onClick={() => navigate(`/chennal/${owner._id}`)}
                     />
                     <div>
-                      <p className="text-xl font-semibold text-white">
+                      <p className="text-xl font-semibold text-white cursor-pointer"
+                         onClick={() => navigate(`/chennal/${owner._id}`)}>
                         {owner.username}
                       </p>
                       <p className="text-sm text-gray-400">{owner.fullName}</p>
+                      <p className="text-sm text-gray-400">{subscriberCount} subscribers</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4 text-gray-400">
-                  
-                    <MessageCircle className="hover:text-green-500 cursor-pointer" />
-                    <Share2 className="hover:text-purple-500 cursor-pointer" />
+                  <div className="flex items-center space-x-4">
+                    {user?._id !== owner._id && (
+                      <button
+                        onClick={handleSubscribeToggle}
+                        disabled={isLoadingSubscription}
+                        className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 ${
+                          isSubscribed
+                            ? 'bg-gray-600 hover:bg-gray-700 text-white'
+                            : 'bg-red-600 hover:bg-red-700 text-white'
+                        } ${isLoadingSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        {isLoadingSubscription
+                          ? 'Loading...'
+                          : isSubscribed
+                          ? 'Unsubscribe'
+                          : 'Subscribe'}
+                      </button>
+                    )}
+                    <Share2 
+                      onClick={copyUrlToClipboard}
+                      className="text-gray-400 hover:text-purple-500 cursor-pointer" 
+                    />
                   </div>
                 </div>
               )}
@@ -221,42 +319,39 @@ export default function VideoDetails() {
             </h3>
 
             {/* Add Comment */}
-
             {userAuth && (
               <div className="flex gap-4 mb-8">
-              
-              <img
-                src={user?.avatar} 
-                alt="User Avatar"
-                className="w-10 h-10 rounded-full"
-              />
-              <div className="flex-1">
-                <textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Add a comment..."
-                  className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg p-3 min-h-[80px] mb-2 focus:outline-none focus:border-blue-500"
+                <img
+                  src={user?.avatar}
+                  alt="User Avatar"
+                  className="w-10 h-10 rounded-full"
                 />
-                <button
-                  onClick={handleAddComment}
-                  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  <Send className="w-4 h-4" />
-                  Comment
-                </button>
+                <div className="flex-1">
+                  <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Add a comment..."
+                    className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg p-3 min-h-[80px] mb-2 focus:outline-none focus:border-blue-500"
+                  />
+                  <button
+                    onClick={handleAddComment}
+                    className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    <Send className="w-4 h-4" />
+                    Comment
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
-            )
-          }
             {/* Comments List */}
-            <div className="space-y-6 h-screen overflow-y-auto">
+            <div className="space-y-6">
               {comments.map((comment) => (
                 <Comment
                   key={comment._id}
                   comment={comment}
                   onDelete={handleDeleteComment}
-                  currentUserId={video?.owner?._id}
+                  currentUserId={user?._id}
                   videoOwnerId={video?.owner?._id}
                 />
               ))}

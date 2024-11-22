@@ -2,7 +2,8 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 import { Upload, X, Film, Image as ImageIcon, Loader2 } from "lucide-react";
 
-const backendUrl = "http://localhost:8000/api/v1";
+const backendUrl = import.meta.env.VITE_API_URL;
+axios.defaults.withCredentials = true;
 
 const PublishVideo = () => {
   const [title, setTitle] = useState("");

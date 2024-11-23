@@ -7,6 +7,25 @@ import { isValidObjectId } from "mongoose";
 import jwt from "jsonwebtoken";
 import { Video } from "../models/video.model.js";
 
+const cookieOptions = {
+  // Basic security settings
+  httpOnly: true,
+  secure: true,  // Always true in production
+  sameSite: 'strict', // More restrictive than 'lax' for production
+  
+  // Additional recommended settings
+  path: '/',  // Restrict cookie to specific path
+  domain: process.env.COOKIE_DOMAIN, // Explicitly set domain
+  maxAge: 24 * 60 * 60 * 1000,  // Example: 24 hours in milliseconds
+  expires: new Date(Date.now() + 24 * 60 * 60 * 1000),  // Alternative to maxAge
+  
+  // Prevent XSS and other injection attacks
+  signed: true,  // If using signed cookies
+  
+  // For session cookies, don't set maxAge/expires
+  // session: true  // Will expire when browser closes
+}
+
 const generateAccessandRerershToken = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -112,18 +131,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
     res
       .status(201)
-      .cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
-      })
-      .cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000, 
-      })
+      .cookie("accessToken", accessToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, cookieOptions)
       .json({
         success: true,
         message: "User registered successfully",
@@ -180,18 +189,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
     res
       .status(200)
-      .cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
-      })
-      .cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-      })
+      .cookie("accessToken", accessToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, cookieOptions)
       .json({
         success: true,
         message: "User logged in successfully",
@@ -221,16 +220,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .clearCookie("accessToken", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-      })
-      .clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-      })
+      .clearCookie("accessToken", cookieOptions)
+      .clearCookie("refreshToken", cookieOptions)
       .json({
         sucess: true,
         message: "USER LOGOUT ",
@@ -282,18 +273,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .cookie(accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
-      })
-      .cookie(refreshToken,  {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-      })
+      .cookie(accessToken, cookieOptions)
+      .cookie(refreshToken,  cookieOptions)
       .json({
         success: true,
         accessToken: accessToken,

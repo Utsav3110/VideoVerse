@@ -78,7 +78,7 @@ const Header = () => {
                     ): (
                       <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center ring-2 ring-gray-800">
                         <span className="text-gray-200 text-sm">
-                          {user.username?.charAt(0).toUpperCase()}
+                          {user?.username?.charAt(0).toUpperCase()}
                         </span>
                       </div>
                     )}

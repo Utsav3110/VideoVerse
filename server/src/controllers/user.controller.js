@@ -12,7 +12,7 @@ const cookieOptions = {
   secure: true',  // Ensure this works locally in dev
   sameSite: 'none',  // Required for cross-site cookies
   path: '/',  // Cookie available across the whole site
-  maxAge: 24 * 60 * 60 * 1000,  // 1 day
+  maxAge: 24 * 60 * 60 * 1000,  //
 };
 
 

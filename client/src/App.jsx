@@ -91,7 +91,7 @@ const App = () => {
               element={userAuth ? <WatchHistory /> : <Navigate to="/login" />}
             />
             <Route
-              path="/video"
+              path="/subscriptions"
               element={
                 userAuth ? <SubscriptionVideo /> : <Navigate to="/login" />
               }

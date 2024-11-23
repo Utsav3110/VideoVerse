@@ -69,13 +69,13 @@ const Header = () => {
                     onClick={() => navigate('/profile')}
                     className="focus:outline-none flex items-center"
                   >
-                    {user.avatar ? (
+                    {user?.avatar ?(
                       <img
                         src={user.avatar}
                         alt="Profile"
                         className="w-8 h-8 rounded-full ring-2 ring-gray-800"
                       />
-                    ) : (
+                    ): (
                       <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center ring-2 ring-gray-800">
                         <span className="text-gray-200 text-sm">
                           {user.username?.charAt(0).toUpperCase()}

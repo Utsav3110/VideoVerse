@@ -20,7 +20,7 @@ const cookieOptions = {
   expires: new Date(Date.now() + 24 * 60 * 60 * 1000),  // Alternative to maxAge
   
   // Prevent XSS and other injection attacks
-  signed: true,  // If using signed cookies
+  // If using signed cookies
   
   // For session cookies, don't set maxAge/expires
   // session: true  // Will expire when browser closes

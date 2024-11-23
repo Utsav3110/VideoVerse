@@ -15,7 +15,7 @@ const cookieOptions = {
   
   // Additional recommended settings
   path: '/',  // Restrict cookie to specific path
-  domain: process.env.COOKIE_DOMAIN, // Explicitly set domain
+  // Explicitly set domain
   maxAge: 24 * 60 * 60 * 1000,  // Example: 24 hours in milliseconds
   expires: new Date(Date.now() + 24 * 60 * 60 * 1000),  // Alternative to maxAge
   

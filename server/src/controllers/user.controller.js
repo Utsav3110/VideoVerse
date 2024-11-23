@@ -8,23 +8,13 @@ import jwt from "jsonwebtoken";
 import { Video } from "../models/video.model.js";
 
 const cookieOptions = {
-  // Basic security settings
   httpOnly: true,
-  secure: true,  // Always true in production
-  sameSite: 'none', // More restrictive than 'lax' for production
-  
-  // Additional recommended settings
-  path: '/',  // Restrict cookie to specific path
-  // Explicitly set domain
-  maxAge: 24 * 60 * 60 * 1000,  // Example: 24 hours in milliseconds
-  expires: new Date(Date.now() + 24 * 60 * 60 * 1000),  // Alternative to maxAge
-  
-  // Prevent XSS and other injection attacks
-  // If using signed cookies
-  
-  // For session cookies, don't set maxAge/expires
-  // session: true  // Will expire when browser closes
-}
+  secure: true',  // Ensure this works locally in dev
+  sameSite: 'none',  // Required for cross-site cookies
+  path: '/',  // Cookie available across the whole site
+  maxAge: 24 * 60 * 60 * 1000,  // 1 day
+};
+
 
 const generateAccessandRerershToken = async (userId) => {
   try {

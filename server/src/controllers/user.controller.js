@@ -11,7 +11,7 @@ const cookieOptions = {
   // Basic security settings
   httpOnly: true,
   secure: true,  // Always true in production
-  sameSite: 'strict', // More restrictive than 'lax' for production
+  sameSite: 'none', // More restrictive than 'lax' for production
   
   // Additional recommended settings
   path: '/',  // Restrict cookie to specific path

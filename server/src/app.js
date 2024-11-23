@@ -21,6 +21,10 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
 //routes
 
+app.get('/', (req, res) => {
+    res.status(200).json({ message: 'Welcome to the Express API!' });
+  });
+
 import userRouter from "./routes/user.routes.js";
 
 app.use("/api/v1/users", userRouter);

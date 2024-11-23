@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContextProvider';
 import axios from 'axios';
+import { User } from 'lucide-react';
+
 
 const backendUrl = import.meta.env.VITE_API_URL;
 axios.defaults.withCredentials = true;
@@ -78,7 +80,7 @@ const Header = () => {
                     ): (
                       <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center ring-2 ring-gray-800">
                         <span className="text-gray-200 text-sm">
-                          {user?.username?.charAt(0).toUpperCase()}
+                          <User />
                         </span>
                       </div>
                     )}

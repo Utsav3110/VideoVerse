@@ -9,7 +9,7 @@ import { Video } from "../models/video.model.js";
 
 const cookieOptions = {
   httpOnly: true,
-  secure: true',  // Ensure this works locally in dev
+  secure: true,  // Ensure this works locally in dev
   sameSite: 'none',  // Required for cross-site cookies
   path: '/',  // Cookie available across the whole site
   maxAge: 24 * 60 * 60 * 1000,  //

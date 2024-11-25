@@ -54,7 +54,7 @@ export default function VideoDetails() {
       );
 
       const subscriptions = response.data.data;
-      setIsSubscribed(subscriptions.some(channel => channel._id === ownerId));
+      setIsSubscribed(subscriptions.some((channel) => channel._id === ownerId));
     } catch (error) {
       console.error('Error checking subscription status:', error);
     }
@@ -63,7 +63,7 @@ export default function VideoDetails() {
   const getSubscriberCount = async (ownerId) => {
     try {
       if (!ownerId) return;
-      
+
       const response = await axios.get(
         `${backendUrl}/subscriptions/channel/${ownerId}/subscribers`
       );
@@ -89,7 +89,7 @@ export default function VideoDetails() {
 
       if (response.data.success) {
         setIsSubscribed(!isSubscribed);
-        setSubscriberCount(prev => isSubscribed ? prev - 1 : prev + 1);
+        setSubscriberCount((prev) => (isSubscribed ? prev - 1 : prev + 1));
       }
     } catch (error) {
       console.error('Error toggling subscription:', error);
@@ -126,7 +126,8 @@ export default function VideoDetails() {
 
   const copyUrlToClipboard = () => {
     const currentUrl = window.location.href;
-    navigator.clipboard.writeText(currentUrl)
+    navigator.clipboard
+      .writeText(currentUrl)
       .then(() => {
         toast.success('URL copied to clipboard!');
       })
@@ -138,7 +139,9 @@ export default function VideoDetails() {
   const updateWatchHistory = async () => {
     if (!userAuth) return;
 
-    const response = await axios.patch(`${backendUrl}/users/updateWatchHistory/${videoId}`);
+    const response = await axios.patch(
+      `${backendUrl}/users/updateWatchHistory/${videoId}`
+    );
     if (!response.data?.success) {
       console.log(response.data?.message);
     }
@@ -208,7 +211,12 @@ export default function VideoDetails() {
     fetchComments(commentPage + 1);
   };
 
+  const scrollToTop = () => {
+    window.scrollTo(0, 0);
+  };
+
   useEffect(() => {
+    scrollToTop();
     updateViews();
     updateWatchHistory();
     fetchVideo();
@@ -266,33 +274,41 @@ export default function VideoDetails() {
               <p className="text-gray-300 mb-6">{video?.description}</p>
 
               {owner && (
-                <div className="flex items-center justify-between bg-gray-700 rounded-lg p-4">
-                  <div className="flex items-center space-x-4">
+                <div className="flex flex-col md:flex-row items-center md:justify-between bg-gray-700 rounded-lg p-4">
+                  <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full">
                     <img
                       src={owner.avatar}
                       alt={owner.username}
                       className="w-16 h-16 rounded-full border-4 border-blue-500 cursor-pointer"
                       onClick={() => navigate(`/chennal/${owner._id}`)}
                     />
-                    <div>
-                      <p className="text-xl font-semibold text-white cursor-pointer"
-                         onClick={() => navigate(`/chennal/${owner._id}`)}>
+                    <div className="text-center md:text-left">
+                      <p
+                        className="text-xl font-semibold text-white cursor-pointer"
+                        onClick={() => navigate(`/chennal/${owner._id}`)}
+                      >
                         {owner.username}
                       </p>
                       <p className="text-sm text-gray-400">{owner.fullName}</p>
-                      <p className="text-sm text-gray-400">{subscriberCount} subscribers</p>
+                      <p className="text-sm text-gray-400">
+                        {subscriberCount} subscribers
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4">
+                  <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 mt-4 md:mt-0 w-full md:w-auto">
                     {user?._id !== owner._id && (
                       <button
                         onClick={handleSubscribeToggle}
                         disabled={isLoadingSubscription}
-                        className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 ${
+                        className={`w-full md:w-auto px-6 py-2 rounded-full font-semibold transition-all duration-200 ${
                           isSubscribed
                             ? 'bg-gray-600 hover:bg-gray-700 text-white'
                             : 'bg-red-600 hover:bg-red-700 text-white'
-                        } ${isLoadingSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        } ${
+                          isLoadingSubscription
+                            ? 'opacity-50 cursor-not-allowed'
+                            : ''
+                        }`}
                       >
                         {isLoadingSubscription
                           ? 'Loading...'
@@ -301,9 +317,9 @@ export default function VideoDetails() {
                           : 'Subscribe'}
                       </button>
                     )}
-                    <Share2 
+                    <Share2
                       onClick={copyUrlToClipboard}
-                      className="text-gray-400 hover:text-purple-500 cursor-pointer" 
+                      className="text-gray-400 hover:text-purple-500 cursor-pointer text-center md:text-left"
                     />
                   </div>
                 </div>

@@ -49,7 +49,7 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="text-xl font-bold text-white hover:text-blue-400 transition-colors">
-            VideoApp
+            VideoVerse
           </Link>
 
           {/* Desktop Navigation */}

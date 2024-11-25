@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import { Upload, X, Film, Image as ImageIcon, Loader2 } from "lucide-react";
+import { toast } from 'react-toastify';
 
 const backendUrl = import.meta.env.VITE_API_URL;
 axios.defaults.withCredentials = true;
@@ -69,6 +70,11 @@ const PublishVideo = () => {
         },
       });
       setMessage(response.data.message);
+      if(response.data.success){
+        toast.success(response.data.message)
+      }else{
+        toast.error(response.data.message);
+      }
       // Clear form after successful upload
       setTitle("");
       setDescription("");

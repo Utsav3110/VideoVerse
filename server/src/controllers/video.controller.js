@@ -65,15 +65,15 @@ const publishAVideo = async (req, res) => {
     });
   }
 
-  console.log(req.files?.videoFile[0].path);
+  console.log(req.files?.videoFile[0].buffer);
 
   try {
     const video = await uploadOnCloudinary(
-      req.files?.videoFile[0].path,
+      req.files?.videoFile[0].buffer,
       "video"
     );
     const thumbnailImaege = await uploadOnCloudinary(
-      req.files?.thumbnail[0].path,
+      req.files?.thumbnail[0].buffer,
       "image"
     );
 
@@ -146,7 +146,7 @@ const getVideoById = async (req, res) => {
 };
 
   // Function to update a video
-  const updateVideo = async (req, res) => {
+const updateVideo = async (req, res) => {
     const { videoId } = req.params;
     const { title, description } = req.body;
 
@@ -164,10 +164,8 @@ const getVideoById = async (req, res) => {
       if (title) updatedFields.title = title;
       if (description) updatedFields.description = description;
 
-      console.log(req.file);
-
       if (req.file) {
-        const thumbnailImage = await uploadOnCloudinary(req.file.path, "image");
+        const thumbnailImage = await uploadOnCloudinary(req.file.buffer, "image");
         updatedFields.thumbnail = thumbnailImage.url;
         console.log(thumbnailImage.url);
       }
@@ -195,7 +193,7 @@ const getVideoById = async (req, res) => {
         error: error.message,
       });
     }
-  };
+};
 
 // Function to delete a video
 const deleteVideo = async (req, res) => {

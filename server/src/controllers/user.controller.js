@@ -7,6 +7,8 @@ import { isValidObjectId } from "mongoose";
 import jwt from "jsonwebtoken";
 import { Video } from "../models/video.model.js";
 
+import { Readable } from "stream";
+
 const cookieOptions = {
   httpOnly: true,
   secure: true,  // Ensure this works locally in dev
@@ -68,13 +70,13 @@ const registerUser = asyncHandler(async (req, res) => {
 
     console.log("This is req.files ", req.files);
 
-    const avatarLocalPath = req.files?.avatar[0]?.path;
+    const avatarLocalPath = req.files?.avatar[0]?.buffer;
 
-    console.log("avtrat local");
+    console.log(avatarLocalPath);
 
     let coverImageLocalPath;
 
-    coverImageLocalPath = req.files?.coverImage[0]?.path;
+    coverImageLocalPath = req.files?.coverImage[0]?.buffer;
 
     //const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
@@ -346,7 +348,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
-  const avatarLocalPath = req.file?.path;
+  const avatarLocalPath = req.file?.buffer;
 
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is missing");
@@ -383,7 +385,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 });
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
-  const coverImageLocalPath = req.file?.path;
+  const coverImageLocalPath = req.file?.buffer;
 
   if (!coverImageLocalPath) {
     throw new ApiError(400, "Cover image file is missing");

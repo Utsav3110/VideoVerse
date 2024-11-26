@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { UserContext } from '../context/UserContextProvider';
 import { Upload, User, Image as ImageIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const backendUrl = import.meta.env.VITE_API_URL;
 axios.defaults.withCredentials = true;
@@ -263,11 +263,11 @@ const Register = () => {
               </button>
             </form>
           </div>
-          <div className="mt-2 flex justify-center">
-                  Already have an account?
-                  <a href="/login" className="text-purple-400 hover:text-purple-300 transition duration-200">
-                    Log in
-                  </a>
+          <div className="mt-2 flex justify-center mb-5">
+                  Already have an account ?{' '}  
+                  <Link to="/login" className="mx-2 text-purple-400 hover:text-purple-300 transition duration-200">
+                  Log in
+                  </Link>
                 </div>
         </div>
         

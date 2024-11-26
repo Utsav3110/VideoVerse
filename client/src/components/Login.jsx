@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { UserContext } from '../context/UserContextProvider';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, LogIn } from 'lucide-react';
 
 const backendUrl = import.meta.env.VITE_API_URL;
@@ -172,9 +172,9 @@ const Login = () => {
                 </a>
                 <div className="mt-2">
                   Don't have an account?{' '}
-                  <a href="/register" className="text-purple-400 hover:text-purple-300 transition duration-200">
-                    Sign up
-                  </a>
+                  <Link to="/register" className="text-purple-400 hover:text-purple-300 transition duration-200">
+                  Sign up
+                  </Link>
                 </div>
               </div>
             </form>

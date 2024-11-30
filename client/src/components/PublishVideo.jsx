@@ -1,22 +1,32 @@
-import React, { useState, useRef } from "react";
-import axios from "axios";
-import { Upload, X, Film, Image as ImageIcon, Loader2 } from "lucide-react";
+import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
+import { Upload, X, Film, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const backendUrl = import.meta.env.VITE_API_URL;
 axios.defaults.withCredentials = true;
 
 const PublishVideo = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [videoFile, setVideoFile] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [videoPreview, setVideoPreview] = useState("");
-  const [thumbnailPreview, setThumbnailPreview] = useState("");
+  const [message, setMessage] = useState('');
+  const [videoPreview, setVideoPreview] = useState('');
+  const [thumbnailPreview, setThumbnailPreview] = useState('');
   const videoInputRef = useRef(null);
   const thumbnailInputRef = useRef(null);
+
+  useEffect(() => {
+    toast.info(
+      "Due to Vercel's serverless deployment limitations, videos cannot exceed 5-10 seconds in duration or 2-3 MB in size",
+      {
+        autoClose: false, // Don't auto close the toast
+        closeButton: true, // Show close button on the toast
+      }
+    );
+  }, []);
 
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
@@ -38,50 +48,54 @@ const PublishVideo = () => {
 
   const clearVideo = () => {
     setVideoFile(null);
-    setVideoPreview("");
+    setVideoPreview('');
     if (videoInputRef.current) {
-      videoInputRef.current.value = "";
+      videoInputRef.current.value = '';
     }
   };
 
   const clearThumbnail = () => {
     setThumbnail(null);
-    setThumbnailPreview("");
+    setThumbnailPreview('');
     if (thumbnailInputRef.current) {
-      thumbnailInputRef.current.value = "";
+      thumbnailInputRef.current.value = '';
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
+    setMessage('');
 
     const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("videoFile", videoFile);
-    formData.append("thumbnail", thumbnail);
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('videoFile', videoFile);
+    formData.append('thumbnail', thumbnail);
 
     try {
-      const response = await axios.post(`${backendUrl}/video/publish`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        `${backendUrl}/video/publish`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
       setMessage(response.data.message);
-      if(response.data.success){
-        toast.success(response.data.message)
-      }else{
+      if (response.data.success) {
+        toast.success(response.data.message);
+      } else {
         toast.error(response.data.message);
       }
       // Clear form after successful upload
-      setTitle("");
-      setDescription("");
+      setTitle('');
+      setDescription('');
       clearVideo();
       clearThumbnail();
     } catch (err) {
-      setMessage(err.response?.data?.message || "Error publishing video.");
+      setMessage(err.response?.data?.message || 'Error publishing video.');
     } finally {
       setLoading(false);
     }
@@ -94,7 +108,9 @@ const PublishVideo = () => {
           <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
             Publish Your Video
           </h1>
-          <p className="mt-2 text-gray-400">Share your content with the world</p>
+          <p className="mt-2 text-gray-400">
+            Share your content with the world
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -132,7 +148,7 @@ const PublishVideo = () => {
             <label className="block text-sm font-medium text-gray-300 mb-4">
               Video File
             </label>
-            
+
             {!videoPreview ? (
               <div className="border-2 border-dashed border-gray-600 rounded-lg p-8">
                 <div className="text-center">
@@ -152,7 +168,7 @@ const PublishVideo = () => {
                         required
                       />
                       <span className="mt-2 block text-xs text-gray-500">
-                        MP4, WebM, or OGG 
+                        MP4, WebM, or OGG
                       </span>
                     </label>
                   </div>
@@ -160,9 +176,9 @@ const PublishVideo = () => {
               </div>
             ) : (
               <div className="relative rounded-lg overflow-hidden">
-                <video 
-                  src={videoPreview} 
-                  controls 
+                <video
+                  src={videoPreview}
+                  controls
                   className="w-full rounded-lg"
                 ></video>
                 <button
@@ -181,13 +197,16 @@ const PublishVideo = () => {
             <label className="block text-sm font-medium text-gray-300 mb-4">
               Thumbnail
             </label>
-            
+
             {!thumbnailPreview ? (
               <div className="border-2 border-dashed border-gray-600 rounded-lg p-8">
                 <div className="text-center">
                   <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
                   <div className="mt-4">
-                    <label htmlFor="thumbnail-upload" className="cursor-pointer">
+                    <label
+                      htmlFor="thumbnail-upload"
+                      className="cursor-pointer"
+                    >
                       <span className="mt-2 block text-sm font-medium text-gray-300">
                         Click to upload thumbnail
                       </span>
@@ -244,9 +263,15 @@ const PublishVideo = () => {
                 </>
               )}
             </button>
-            
+
             {message && (
-              <div className={`p-4 rounded-lg ${message.includes('Error') ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'} text-center`}>
+              <div
+                className={`p-4 rounded-lg ${
+                  message.includes('Error')
+                    ? 'bg-red-500/20 text-red-400'
+                    : 'bg-green-500/20 text-green-400'
+                } text-center`}
+              >
                 {message}
               </div>
             )}
